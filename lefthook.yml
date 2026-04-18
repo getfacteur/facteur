@@ -1,0 +1,17 @@
+pre-commit:
+  parallel: false
+  jobs:
+    - name: lint
+      stage_fixed: true
+      glob:
+        - "*.{js,jsx,ts,tsx,mjs,cjs}"
+      run: bun lint:fix {staged_files}
+    - name: format
+      glob:
+        - "*.{js,jsx,ts,tsx,mjs,cjs}"
+      stage_fixed: true
+      run: bun format:fix {staged_files}
+commit-msg:
+  commands:
+    "lint commit message":
+      run: bun commitlint --edit {1}

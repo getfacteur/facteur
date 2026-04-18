@@ -1,0 +1,7 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["src/components/ui/**", "src/routeTree.gen.ts"],
+  "semi": false,
+  "sortTailwindcss": true,
+  "sortImports": true
+}
