@@ -4,8 +4,11 @@
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    "react/no-children-prop": "off"
+  },
   "env": {
     "builtin": true
-  }
+  },
+  "ignorePatterns": ["src/components/ui/**"]
 }

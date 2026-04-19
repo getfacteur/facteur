@@ -1,11 +1,13 @@
 import { TanStackDevtools } from "@tanstack/react-devtools"
+import { formDevtoolsPlugin } from "@tanstack/react-form-devtools"
 import type { QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
+import { Toaster } from "#/components/ui/sonner"
+
 import Footer from "../components/Footer"
-import Header from "../components/Header"
 
 import appCss from "../styles.css?url"
 
@@ -44,10 +46,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans wrap-anywhere antialiased">
-        <Header />
+      <body className="flex min-h-screen flex-col font-sans wrap-anywhere antialiased">
         {children}
         <Footer />
+        <Toaster richColors />
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -61,6 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               name: "Tanstack Query",
               render: <ReactQueryDevtoolsPanel />,
             },
+            formDevtoolsPlugin(),
           ]}
         />
         <Scripts />
