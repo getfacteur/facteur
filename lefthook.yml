@@ -10,7 +10,7 @@ pre-commit:
       glob:
         - "*.{js,jsx,ts,tsx,mjs,cjs}"
       stage_fixed: true
-      run: bun format:fix {staged_files}
+      run: bun fmt:fix {staged_files}
 commit-msg:
   commands:
     "lint commit message":

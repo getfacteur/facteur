@@ -9,38 +9,117 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GuestRouteImport } from './routes/_guest'
+import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
+import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
+import { Route as GuestPasswordForgotRouteImport } from './routes/_guest/password-forgot'
+import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 
+const GuestRoute = GuestRouteImport.update({
+  id: '/_guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
   id: '/api/$',
   path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuestRegisterRoute = GuestRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestPasswordForgotRoute = GuestPasswordForgotRouteImport.update({
+  id: '/password-forgot',
+  path: '/password-forgot',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestLoginRoute = GuestLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => GuestRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthIndexRoute
+  '/login': typeof GuestLoginRoute
+  '/password-forgot': typeof GuestPasswordForgotRoute
+  '/register': typeof GuestRegisterRoute
   '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthIndexRoute
+  '/login': typeof GuestLoginRoute
+  '/password-forgot': typeof GuestPasswordForgotRoute
+  '/register': typeof GuestRegisterRoute
   '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteWithChildren
+  '/_guest': typeof GuestRouteWithChildren
+  '/_guest/login': typeof GuestLoginRoute
+  '/_guest/password-forgot': typeof GuestPasswordForgotRoute
+  '/_guest/register': typeof GuestRegisterRoute
   '/api/$': typeof ApiSplatRoute
+  '/_auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/api/$'
+  fullPaths: '/' | '/login' | '/password-forgot' | '/register' | '/api/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/api/$'
-  id: '__root__' | '/api/$'
+  to: '/' | '/login' | '/password-forgot' | '/register' | '/api/$'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/_guest'
+    | '/_guest/login'
+    | '/_guest/password-forgot'
+    | '/_guest/register'
+    | '/api/$'
+    | '/_auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRoute: typeof AuthRouteWithChildren
+  GuestRoute: typeof GuestRouteWithChildren
   ApiSplatRoute: typeof ApiSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_guest': {
+      id: '/_guest'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof GuestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/': {
+      id: '/_auth/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/api/$': {
       id: '/api/$'
       path: '/api/$'
@@ -48,10 +127,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_guest/register': {
+      id: '/_guest/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof GuestRegisterRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/password-forgot': {
+      id: '/_guest/password-forgot'
+      path: '/password-forgot'
+      fullPath: '/password-forgot'
+      preLoaderRoute: typeof GuestPasswordForgotRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/login': {
+      id: '/_guest/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof GuestLoginRouteImport
+      parentRoute: typeof GuestRoute
+    }
   }
 }
 
+interface AuthRouteChildren {
+  AuthIndexRoute: typeof AuthIndexRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthIndexRoute: AuthIndexRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
+interface GuestRouteChildren {
+  GuestLoginRoute: typeof GuestLoginRoute
+  GuestPasswordForgotRoute: typeof GuestPasswordForgotRoute
+  GuestRegisterRoute: typeof GuestRegisterRoute
+}
+
+const GuestRouteChildren: GuestRouteChildren = {
+  GuestLoginRoute: GuestLoginRoute,
+  GuestPasswordForgotRoute: GuestPasswordForgotRoute,
+  GuestRegisterRoute: GuestRegisterRoute,
+}
+
+const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
+  AuthRoute: AuthRouteWithChildren,
+  GuestRoute: GuestRouteWithChildren,
   ApiSplatRoute: ApiSplatRoute,
 }
 export const routeTree = rootRouteImport
