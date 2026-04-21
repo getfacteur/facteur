@@ -1,3 +1,4 @@
 export * from "./auth"
 export * from "./project"
 export * from "./form"
+export * from "./profile"

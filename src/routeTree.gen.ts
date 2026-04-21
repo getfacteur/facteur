@@ -16,6 +16,7 @@ import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as GuestPasswordForgotRouteImport } from './routes/_guest/password-forgot'
 import { Route as GuestLoginRouteImport } from './routes/_guest/login'
+import { Route as AuthOnboardingRouteImport } from './routes/_auth/onboarding'
 
 const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
@@ -50,9 +51,15 @@ const GuestLoginRoute = GuestLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => GuestRoute,
 } as any)
+const AuthOnboardingRoute = AuthOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
+  '/onboarding': typeof AuthOnboardingRoute
   '/login': typeof GuestLoginRoute
   '/password-forgot': typeof GuestPasswordForgotRoute
   '/register': typeof GuestRegisterRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
+  '/onboarding': typeof AuthOnboardingRoute
   '/login': typeof GuestLoginRoute
   '/password-forgot': typeof GuestPasswordForgotRoute
   '/register': typeof GuestRegisterRoute
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
+  '/_auth/onboarding': typeof AuthOnboardingRoute
   '/_guest/login': typeof GuestLoginRoute
   '/_guest/password-forgot': typeof GuestPasswordForgotRoute
   '/_guest/register': typeof GuestRegisterRoute
@@ -77,13 +86,26 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/password-forgot' | '/register' | '/api/$'
+  fullPaths:
+    | '/'
+    | '/onboarding'
+    | '/login'
+    | '/password-forgot'
+    | '/register'
+    | '/api/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/password-forgot' | '/register' | '/api/$'
+  to:
+    | '/'
+    | '/onboarding'
+    | '/login'
+    | '/password-forgot'
+    | '/register'
+    | '/api/$'
   id:
     | '__root__'
     | '/_auth'
     | '/_guest'
+    | '/_auth/onboarding'
     | '/_guest/login'
     | '/_guest/password-forgot'
     | '/_guest/register'
@@ -148,14 +170,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestLoginRouteImport
       parentRoute: typeof GuestRoute
     }
+    '/_auth/onboarding': {
+      id: '/_auth/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthOnboardingRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
+  AuthOnboardingRoute: typeof AuthOnboardingRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthOnboardingRoute: AuthOnboardingRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 

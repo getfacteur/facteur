@@ -1,8 +1,8 @@
-import { treaty } from "@elysiajs/eden"
 import { createFileRoute } from "@tanstack/react-router"
-import { createIsomorphicFn } from "@tanstack/react-start"
-import { Elysia } from "elysia"
+import { Elysia, t } from "elysia"
 
+import { OrganizationController } from "#/api/modules/organization/controller"
+import { ProfileController } from "#/api/modules/profile/controller"
 import { auth } from "#/lib/auth"
 
 const app = new Elysia({
@@ -10,6 +10,33 @@ const app = new Elysia({
 })
   .mount(auth.handler)
   .get("/", "Hello Elysia")
+  .post(
+    "/update-active-org",
+    async ({ body, request, set }) => {
+      const session = await auth.api.getSession({ headers: request.headers })
+      if (!session) {
+        set.status = 401
+        return { error: "unauthorized" }
+      }
+
+      const { exists, isMember } = await OrganizationController.isUserMember(
+        session.user.id,
+        body.organizationId,
+      )
+
+      if (!exists || !isMember) {
+        set.status = 403
+        return { error: "forbidden" }
+      }
+
+      await ProfileController.updateActiveOrg(session.user.id, body.organizationId)
+    },
+    {
+      body: t.Object({
+        organizationId: t.String(),
+      }),
+    },
+  )
 
 const handle = ({ request }: { request: Request }) => app.fetch(request)
 
@@ -22,8 +49,4 @@ export const Route = createFileRoute("/api/$")({
   },
 })
 
-type App = typeof app
-
-export const getTreaty = createIsomorphicFn()
-  .server(() => treaty(app).api)
-  .client(() => treaty<App>("localhost:3000").api)
+export type App = typeof app
