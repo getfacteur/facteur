@@ -5,12 +5,17 @@ import { getSession } from "#/lib/session"
 
 export const Route = createFileRoute("/_auth")({
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ matches }) => {
     const session = await getSession()
     if (!session?.data?.user) {
       throw redirect({ to: "/login" })
     }
-
+    if (
+      !matches.find((match) => match.routeId === "/_auth/onboarding") &&
+      !session?.data?.session.activeOrganizationId
+    ) {
+      throw redirect({ to: "/onboarding" })
+    }
     return {
       user: session.data.user,
     }

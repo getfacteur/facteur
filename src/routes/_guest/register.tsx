@@ -40,7 +40,11 @@ function RouteComponent() {
         return
       }
 
-      const { error } = await authClient.signUp.email({ ...value, name, callbackURL: "/" })
+      const { error } = await authClient.signUp.email({
+        ...value,
+        name,
+        callbackURL: "/onboarding",
+      })
 
       if (error) {
         console.error(error)
@@ -53,7 +57,7 @@ function RouteComponent() {
   })
 
   const handleSocialSignUp = async (provider: SocialProviders) => {
-    const { error } = await authClient.signIn.social({ provider, callbackURL: "/" })
+    const { error } = await authClient.signIn.social({ provider, callbackURL: "/onboarding" })
 
     if (error) {
       console.error(error)

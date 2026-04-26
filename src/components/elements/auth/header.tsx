@@ -4,6 +4,8 @@ import { toast } from "sonner"
 import { Button } from "#/components/ui/button"
 import { authClient } from "#/lib/auth-client"
 
+import { OrgPicker } from "./org-picker"
+
 export const Header = () => {
   const navigate = useNavigate()
 
@@ -23,7 +25,8 @@ export const Header = () => {
 
   return (
     <header>
-      <div>
+      <div className="flex gap-4">
+        <OrgPicker />
         <Button onClick={handleSignOut}>Sign Out</Button>
       </div>
     </header>
