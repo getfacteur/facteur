@@ -1,0 +1,3 @@
+{
+  "extends": "@facteur/config/tsconfig.base.json",
+}

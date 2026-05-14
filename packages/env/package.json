@@ -1,0 +1,16 @@
+{
+  "name": "@facteur/env",
+  "private": true,
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:",
+    "@facteur/config": "workspace:*"
+  },
+  "exports": {
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts"
+  }
+}
