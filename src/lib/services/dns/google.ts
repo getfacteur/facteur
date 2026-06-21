@@ -15,22 +15,20 @@ export class Google implements DnsResolver {
 	endpoint = "https://dns.google/resolve";
 
 	async getRecord(type: "TXT", name: string) {
-		try {
-			const response = await betterFetch(this.endpoint, {
-				query: {
-					name,
-					type,
-				},
-				output: responseSchema,
+		const response = await betterFetch(this.endpoint, {
+			query: {
+				name,
+				type,
+			},
+			output: responseSchema,
+		});
+
+		if (response.error) {
+			throw new Error("Google DNS lookup failed", {
+				cause: response.error,
 			});
-
-			if (response.error) {
-				return null;
-			}
-
-			return response.data.Answer?.[0]?.data ?? null;
-		} catch {
-			return null;
 		}
+
+		return response.data.Answer?.[0]?.data ?? null;
 	}
 }

@@ -4,6 +4,13 @@ import { eventType, Inngest } from "inngest";
 export const startDomainVerify = eventType("app/domain.verify", {
 	schema: type({
 		id: "string",
+		source: "'initial' | 'manual' | 'scheduled'",
+	}),
+});
+
+export const domainInvalidated = eventType("app/domain.invalidated", {
+	schema: type({
+		domainId: "string",
 	}),
 });
 

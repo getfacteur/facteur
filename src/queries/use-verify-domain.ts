@@ -9,7 +9,9 @@ type DomainVerify = typeof domainVerifySchema.infer;
 const triggerDomainVerify = createServerFn({ method: "POST" })
 	.validator(domainVerifySchema)
 	.handler(async ({ data }) => {
-		await inngest.send(startDomainVerify.create({ id: data.domainId }));
+		await inngest.send(
+			startDomainVerify.create({ id: data.domainId, source: "manual" }),
+		);
 	});
 
 export const useVerifyDomain = () => {

@@ -41,7 +41,9 @@ export class Cloudflare implements DnsResolver {
 		});
 
 		if (response.error) {
-			return null;
+			throw new Error("Cloudflare DNS lookup failed", {
+				cause: response.error,
+			});
 		}
 
 		return response.data.Answer?.[0]?.data ?? null;
