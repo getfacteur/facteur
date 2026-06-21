@@ -1,5 +1,5 @@
 import { inngest, startDomainVerify } from "../inngest";
-import { Cloudflare } from "../services/dns/cloudflare";
+import { createDnsResolver } from "../services/dns/factory";
 import {
 	getDomain,
 	getDomainVerifaction,
@@ -15,7 +15,7 @@ export const verifyDomain = inngest.createFunction(
 			return;
 		}
 		logger.info(`found domain for id ${event.data.id}`);
-		const resolver = new Cloudflare();
+		const resolver = createDnsResolver();
 		const res = await resolver.getRecord(
 			"TXT",
 			`_facteur-relay.${domain.domain}`,

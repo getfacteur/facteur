@@ -5,6 +5,7 @@ const envBoolean = type("'true' | 'false'").pipe((value) => value === "true");
 const envSchema = type({
 	INNGEST_SIGNING_KEY: "string?",
 	INNGEST_DEV: "'0' | '1'",
+	DNS_RESOLVER: type("'cloudflare' | 'google'").default("cloudflare"),
 	DATABASE_URL: "string",
 	BETTER_AUTH_SECRET: "string",
 	BETTER_AUTH_URL: "string",
