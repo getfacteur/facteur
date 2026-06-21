@@ -1,6 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "#/components/data-table";
 import { type Domain, useDomains } from "#/queries/use-domains";
+import { DomainStatusCell } from "./domain-status-cell";
 import { DomainTableActions } from "./domain-table-actions";
 
 const columnHelper = createColumnHelper<Domain>();
@@ -11,7 +12,7 @@ const columns = [
 		header: "Domain",
 	}),
 	columnHelper.accessor("status", {
-		cell: (info) => info.getValue(),
+		cell: (props) => <DomainStatusCell domain={props.row.original} />,
 		header: "Status",
 	}),
 	columnHelper.display({
