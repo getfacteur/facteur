@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { asc, eq, gt } from "drizzle-orm";
 import { db } from "#/db";
-import { type DomainStatus, domain } from "#/db/schema";
+import { type DomainStatus, domain, user } from "#/db/schema";
 import { getPlanLimits } from "../facteur/billing";
 import { inngest, startDomainVerify } from "../inngest";
 
@@ -33,7 +33,9 @@ export const createDomain = async (userId: string, domainName: string) => {
 			status: "pending",
 		})
 		.returning();
-	await inngest.send(startDomainVerify.create({ id: result.id }));
+	await inngest.send(
+		startDomainVerify.create({ id: result.id, source: "initial" }),
+	);
 };
 
 export const getDomains = async (userId: string) => {
@@ -42,6 +44,33 @@ export const getDomains = async (userId: string) => {
 
 export const getDomain = async (domainId: string) => {
 	return db.query.domain.findFirst({ where: { id: domainId } });
+};
+
+export const getDomainIdsPage = async (
+	cursor: string | undefined,
+	limit: number,
+) => {
+	return db
+		.select({ id: domain.id })
+		.from(domain)
+		.where(cursor ? gt(domain.id, cursor) : undefined)
+		.orderBy(asc(domain.id))
+		.limit(limit);
+};
+
+export const getDomainWithOwner = async (domainId: string) => {
+	const [result] = await db
+		.select({
+			id: domain.id,
+			domain: domain.domain,
+			status: domain.status,
+			userEmail: user.email,
+		})
+		.from(domain)
+		.innerJoin(user, eq(domain.userId, user.id))
+		.where(eq(domain.id, domainId))
+		.limit(1);
+	return result;
 };
 
 export const deleteDomain = async (userId: string, domainId: string) => {
