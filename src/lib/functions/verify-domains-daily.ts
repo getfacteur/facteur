@@ -1,6 +1,6 @@
 import { cron } from "inngest";
 import { inngest, startDomainVerify } from "../inngest";
-import { getAllDomainIds } from "../services/domains";
+import { getDomainIdsPage } from "../services/domains";
 
 const EVENT_BATCH_SIZE = 1_000;
 
@@ -10,18 +10,38 @@ export const verifyDomainsDaily = inngest.createFunction(
 		triggers: [cron("TZ=UTC 0 6 * * *")],
 	},
 	async ({ step }) => {
-		const domains = await step.run("load-domain-ids", getAllDomainIds);
+		let cursor: string | undefined;
+		let domainsQueued = 0;
+		let page = 0;
 
-		for (let index = 0; index < domains.length; index += EVENT_BATCH_SIZE) {
-			const batch = domains.slice(index, index + EVENT_BATCH_SIZE);
+		while (true) {
+			const domains = await step.run(`load-domain-id-page-${page}`, () =>
+				getDomainIdsPage(cursor, EVENT_BATCH_SIZE),
+			);
+			if (domains.length === 0) {
+				break;
+			}
+
 			await step.sendEvent(
-				`verify-domain-batch-${index / EVENT_BATCH_SIZE}`,
-				batch.map(({ id }) =>
+				`verify-domain-batch-${page}`,
+				domains.map(({ id }) =>
 					startDomainVerify.create({ id, source: "scheduled" }),
 				),
 			);
+			domainsQueued += domains.length;
+
+			if (domains.length < EVENT_BATCH_SIZE) {
+				break;
+			}
+
+			const lastDomain = domains.at(-1);
+			if (!lastDomain) {
+				break;
+			}
+			cursor = lastDomain.id;
+			page += 1;
 		}
 
-		return { domainsQueued: domains.length };
+		return { domainsQueued };
 	},
 );

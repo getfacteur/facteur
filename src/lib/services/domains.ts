@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { asc, eq, gt } from "drizzle-orm";
 import { db } from "#/db";
 import { type DomainStatus, domain, user } from "#/db/schema";
 import { getPlanLimits } from "../facteur/billing";
@@ -46,8 +46,16 @@ export const getDomain = async (domainId: string) => {
 	return db.query.domain.findFirst({ where: { id: domainId } });
 };
 
-export const getAllDomainIds = async () => {
-	return db.select({ id: domain.id }).from(domain);
+export const getDomainIdsPage = async (
+	cursor: string | undefined,
+	limit: number,
+) => {
+	return db
+		.select({ id: domain.id })
+		.from(domain)
+		.where(cursor ? gt(domain.id, cursor) : undefined)
+		.orderBy(asc(domain.id))
+		.limit(limit);
 };
 
 export const getDomainWithOwner = async (domainId: string) => {
