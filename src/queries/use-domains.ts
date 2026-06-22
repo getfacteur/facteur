@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { type } from "arktype";
 import { authClient } from "#/lib/auth-client";
+import { requireUserId } from "#/lib/auth-session.server";
 import { getDomains } from "#/lib/services/domains";
+import { domainListQueryKey } from "./domain-query-keys";
 
-const listDomains = createServerFn()
-	.validator(type({ userId: "string" }))
-	.handler(async ({ data }) => getDomains(data.userId));
+const listDomains = createServerFn().handler(async () => {
+	const userId = await requireUserId();
+	return getDomains(userId);
+});
 
 export const useDomains = () => {
 	const { data, error } = authClient.useSession();
@@ -15,9 +17,9 @@ export const useDomains = () => {
 	}
 
 	return useQuery({
-		queryKey: ["domain", "list"],
+		queryKey: domainListQueryKey(data?.user.id),
 		enabled: !!data?.user.id,
-		queryFn: () => listDomains({ data: { userId: data?.user.id ?? "" } }),
+		queryFn: () => listDomains(),
 	});
 };
 

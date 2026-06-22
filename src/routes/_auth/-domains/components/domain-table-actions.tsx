@@ -20,6 +20,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
+import { domainListQueryPrefix } from "#/queries/domain-query-keys";
 import { useDeleteDomain } from "#/queries/use-delete-domain";
 import { useVerifyDomain } from "#/queries/use-verify-domain";
 
@@ -36,7 +37,7 @@ export const DomainTableActions: FC<Props> = ({ domainId }) => {
 		useDeleteDomain();
 
 	const handleVerify = async () => {
-		await triggerVerifyDomain({ domainId });
+		await triggerVerifyDomain(domainId);
 	};
 
 	const handleDelete = () => {
@@ -46,7 +47,8 @@ export const DomainTableActions: FC<Props> = ({ domainId }) => {
 	const handleDeleteConfirm = async () => {
 		await deleteDomain(domainId);
 		await queryClient.invalidateQueries({
-			queryKey: ["domain", "list"],
+			queryKey: domainListQueryPrefix,
+			exact: false,
 		});
 		toast.success("Domain Deleted");
 	};

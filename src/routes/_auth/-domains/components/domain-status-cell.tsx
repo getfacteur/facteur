@@ -99,7 +99,7 @@ const DnsInstructionsDialog: FC<DnsInstructionsDialogProps> = ({ domain }) => {
 
 	const handleVerify = async () => {
 		try {
-			await triggerVerifyDomain({ domainId: domain.id });
+			await triggerVerifyDomain(domain.id);
 			setOpen(false);
 			toast.success("Verification started", {
 				description: "Refresh the page shortly to see the latest status.",

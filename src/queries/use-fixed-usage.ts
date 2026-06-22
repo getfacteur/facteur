@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { type } from "arktype";
 import { authClient } from "#/lib/auth-client";
+import { requireUserId } from "#/lib/auth-session.server";
 import { getPlanLimits } from "#/lib/facteur/billing";
 
-const getFixedUsage = createServerFn({ method: "POST" })
-	.validator(type({ userId: "string" }))
-	.handler(async ({ data }) => {
-		return getPlanLimits(data.userId);
-	});
+const getFixedUsage = createServerFn({ method: "POST" }).handler(async () => {
+	const userId = await requireUserId();
+	return getPlanLimits(userId);
+});
 
 export const useFixedUsage = () => {
 	const { data, error } = authClient.useSession();
@@ -18,7 +17,7 @@ export const useFixedUsage = () => {
 
 	return useQuery({
 		queryKey: [data?.user.id, "fixed-usage"],
-		queryFn: () => getFixedUsage({ data: { userId: data?.user.id ?? "" } }),
+		queryFn: () => getFixedUsage(),
 		enabled: !!data?.user.id,
 	});
 };

@@ -1,23 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { type } from "arktype";
-import { authClient } from "#/lib/auth-client";
+import { requireUserId } from "#/lib/auth-session.server";
 import { createDomain } from "#/lib/services/domains";
 
-const saveDomainSchema = type({ userId: "string", domain: "string" });
+const saveDomainSchema = type({ domain: "string" });
 
 const saveDomain = createServerFn({ method: "POST" })
 	.validator(saveDomainSchema)
-	.handler(async ({ data }) => createDomain(data.userId, data.domain));
+	.handler(async ({ data }) => {
+		const userId = await requireUserId();
+		return createDomain(userId, data.domain);
+	});
 
 export const useCreateDomain = () => {
-	const { data, error } = authClient.useSession();
-	if (error) {
-		throw new Error(error.message);
-	}
 	return useMutation({
 		mutationKey: ["domain", "create"],
-		mutationFn: (domain: string) =>
-			saveDomain({ data: { userId: data?.user.id ?? "", domain } }),
+		mutationFn: (domain: string) => saveDomain({ data: { domain } }),
 	});
 };

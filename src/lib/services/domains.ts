@@ -5,6 +5,13 @@ import { type DomainStatus, domain, user } from "#/db/schema";
 import { getPlanLimits } from "../facteur/billing";
 import { inngest, startDomainVerify } from "../inngest";
 
+export class DomainAccessError extends Error {
+	constructor() {
+		super("domain_access_denied");
+		this.name = "DomainAccessError";
+	}
+}
+
 export const countDomains = async (userId: string) => {
 	const domains = await db
 		.select({ id: domain.id })
@@ -81,7 +88,7 @@ export const deleteDomain = async (userId: string, domainId: string) => {
 		},
 	});
 	if (!domainRow) {
-		throw new Error("unauthorized");
+		throw new DomainAccessError();
 	}
 	await db.delete(domain).where(eq(domain.id, domainId));
 };
@@ -104,4 +111,22 @@ export const getDomainVerifaction = (value: string) => {
 	const match = value.match(/^"facteur-relay-verification=([^"]+)"$/);
 	const token = match?.[1];
 	return token;
+};
+
+export const verifyDomain = async (userId: string, domainId: string) => {
+	const domainRow = await db.query.domain.findFirst({
+		where: {
+			id: domainId,
+			userId: userId,
+		},
+	});
+	if (!domainRow) {
+		throw new DomainAccessError();
+	}
+	await inngest.send(
+		startDomainVerify.create({
+			id: domainRow.id,
+			source: "manual",
+		}),
+	);
 };

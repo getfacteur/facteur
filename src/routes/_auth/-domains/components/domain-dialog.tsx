@@ -13,6 +13,7 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog";
 import { useAppForm } from "#/hooks/use-app-form";
+import { domainListQueryPrefix } from "#/queries/domain-query-keys";
 import { useCreateDomain } from "#/queries/use-create-domain";
 
 interface Props {
@@ -37,7 +38,10 @@ export const DomainDialog: FC<Props> = ({ open, setOpen }) => {
 		},
 		onSubmit: async ({ value }) => {
 			await mutateAsync(value.domain);
-			await queryClient.invalidateQueries({ queryKey: ["domain", "list"] });
+			await queryClient.invalidateQueries({
+				queryKey: domainListQueryPrefix,
+				exact: false,
+			});
 			setOpen(false);
 			toast("Created Domain");
 		},
