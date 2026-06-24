@@ -8,6 +8,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Button } from "#/components/ui/button";
 import { Toaster } from "#/components/ui/sonner";
 import { TooltipProvider } from "#/components/ui/tooltip";
 import appCss from "../styles.css?url";
@@ -35,8 +36,25 @@ export const Route = createRootRouteWithContext<{
 			},
 		],
 	}),
+	errorComponent: RootErrorComponent,
 	shellComponent: RootDocument,
 });
+
+function RootErrorComponent() {
+	return (
+		<main className="flex min-h-svh items-center justify-center p-6">
+			<div className="flex w-full max-w-lg flex-col gap-4">
+				<Button
+					onClick={() => window.location.reload()}
+					type="button"
+					variant="ghost"
+				>
+					Reload the page
+				</Button>
+			</div>
+		</main>
+	);
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (

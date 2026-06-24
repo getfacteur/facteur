@@ -1,7 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { type } from "arktype";
-import type { FC } from "react";
-import { toast } from "sonner";
+import { type FC, useState } from "react";
 import { Button } from "#/components/ui/button";
 import {
 	Dialog,
@@ -11,23 +9,18 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "#/components/ui/dialog";
 import { useAppForm } from "#/hooks/use-app-form";
-import { domainListQueryPrefix } from "#/queries/domain-query-keys";
 import { useCreateDomain } from "#/queries/use-create-domain";
-
-interface Props {
-	open: boolean;
-	setOpen: (v: boolean) => void;
-}
 
 const validator = type({
 	domain: "string > 1",
 });
 
-export const DomainDialog: FC<Props> = ({ open, setOpen }) => {
+export const DomainDialog: FC = () => {
+	const [open, setOpen] = useState(false);
 	const { mutateAsync } = useCreateDomain();
-	const queryClient = useQueryClient();
 	const form = useAppForm({
 		defaultValues: {
 			domain: "",
@@ -37,17 +30,16 @@ export const DomainDialog: FC<Props> = ({ open, setOpen }) => {
 			onSubmit: validator,
 		},
 		onSubmit: async ({ value }) => {
-			await mutateAsync(value.domain);
-			await queryClient.invalidateQueries({
-				queryKey: domainListQueryPrefix,
-				exact: false,
-			});
-			setOpen(false);
-			toast("Created Domain");
+			try {
+				await mutateAsync(value.domain);
+				form.reset();
+				setOpen(false);
+			} catch {}
 		},
 	});
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger render={<Button />}>Add</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Add a domain</DialogTitle>
