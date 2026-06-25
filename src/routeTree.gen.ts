@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiInngestRouteImport } from './routes/api/inngest'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
+import { Route as AuthProfileRouteImport } from './routes/_auth/profile'
 import { Route as AuthDomainsRouteImport } from './routes/_auth/domains'
 import { Route as AuthAppRouteImport } from './routes/_auth/app'
 
@@ -46,6 +47,11 @@ const GuestSignInRoute = GuestSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => GuestRoute,
 } as any)
+const AuthProfileRoute = AuthProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthDomainsRoute = AuthDomainsRouteImport.update({
   id: '/domains',
   path: '/domains',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AuthAppRoute
   '/domains': typeof AuthDomainsRoute
+  '/profile': typeof AuthProfileRoute
   '/sign-in': typeof GuestSignInRoute
   '/api/$': typeof ApiSplatRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AuthAppRoute
   '/domains': typeof AuthDomainsRoute
+  '/profile': typeof AuthProfileRoute
   '/sign-in': typeof GuestSignInRoute
   '/api/$': typeof ApiSplatRoute
   '/api/inngest': typeof ApiInngestRoute
@@ -80,15 +88,30 @@ export interface FileRoutesById {
   '/_guest': typeof GuestRouteWithChildren
   '/_auth/app': typeof AuthAppRoute
   '/_auth/domains': typeof AuthDomainsRoute
+  '/_auth/profile': typeof AuthProfileRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/api/$': typeof ApiSplatRoute
   '/api/inngest': typeof ApiInngestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/domains' | '/sign-in' | '/api/$' | '/api/inngest'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/domains'
+    | '/profile'
+    | '/sign-in'
+    | '/api/$'
+    | '/api/inngest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/domains' | '/sign-in' | '/api/$' | '/api/inngest'
+  to:
+    | '/'
+    | '/app'
+    | '/domains'
+    | '/profile'
+    | '/sign-in'
+    | '/api/$'
+    | '/api/inngest'
   id:
     | '__root__'
     | '/'
@@ -96,6 +119,7 @@ export interface FileRouteTypes {
     | '/_guest'
     | '/_auth/app'
     | '/_auth/domains'
+    | '/_auth/profile'
     | '/_guest/sign-in'
     | '/api/$'
     | '/api/inngest'
@@ -153,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestSignInRouteImport
       parentRoute: typeof GuestRoute
     }
+    '/_auth/profile': {
+      id: '/_auth/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthProfileRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/domains': {
       id: '/_auth/domains'
       path: '/domains'
@@ -173,11 +204,13 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthAppRoute: typeof AuthAppRoute
   AuthDomainsRoute: typeof AuthDomainsRoute
+  AuthProfileRoute: typeof AuthProfileRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthAppRoute: AuthAppRoute,
   AuthDomainsRoute: AuthDomainsRoute,
+  AuthProfileRoute: AuthProfileRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -202,12 +235,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

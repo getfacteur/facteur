@@ -25,6 +25,11 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema: schema,
 	}),
+	user: {
+		deleteUser: {
+			enabled: true,
+		},
+	},
 	databaseHooks: {
 		user: {
 			create: {
