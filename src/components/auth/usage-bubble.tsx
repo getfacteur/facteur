@@ -22,10 +22,6 @@ export const UsageBubble = () => {
 					<span>
 						Domains: {fixedUsage?.current_domains} / {fixedUsage?.max_domains}
 					</span>
-					<span>
-						Providers: {fixedUsage?.current_providers} /{" "}
-						{fixedUsage?.max_providers}
-					</span>
 				</div>
 			</TooltipContent>
 		</Tooltip>

@@ -16,6 +16,13 @@ export const relations = defineRelations(schema, (r) => ({
 			optional: false,
 		}),
 	},
+	dataExportRequest: {
+		user: r.one.user({
+			from: r.dataExportRequest.userId,
+			to: r.user.id,
+			optional: false,
+		}),
+	},
 	passkey: {
 		user: r.one.user({
 			from: r.passkey.userId,
@@ -32,6 +39,10 @@ export const relations = defineRelations(schema, (r) => ({
 	},
 	user: {
 		accounts: r.many.account({ from: r.user.id, to: r.account.userId }),
+		dataExportRequests: r.many.dataExportRequest({
+			from: r.user.id,
+			to: r.dataExportRequest.userId,
+		}),
 		domains: r.many.domain({ from: r.user.id, to: r.domain.userId }),
 		passkeys: r.many.passkey({ from: r.user.id, to: r.passkey.userId }),
 		sessions: r.many.session({ from: r.user.id, to: r.session.userId }),

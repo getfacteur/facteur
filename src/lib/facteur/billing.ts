@@ -1,7 +1,6 @@
 import { env } from "../env.server";
 import { polarClient } from "../polar";
 import { countDomains } from "../services/domains";
-import { countProviders } from "../services/providers";
 import { getPlanConfig } from "./config";
 
 export const getMailMeter = async (userId: string) => {
@@ -33,11 +32,55 @@ export const getPlanLimits = async (userId: string) => {
 		throw new Error("plan_config_not_found");
 	}
 	const domainCount = await countDomains(userId);
-	const providerCount = await countProviders(userId);
 	return {
 		current_domains: domainCount,
-		current_providers: providerCount,
 		max_domains: config.limits.domains,
-		max_providers: config.limits.providers,
+	};
+};
+
+export const getProfileBilling = async (userId: string) => {
+	const userState = await polarClient.customers.getStateExternal({
+		externalId: userId,
+	});
+	const subscription =
+		userState.activeSubscriptions.find((sub) => sub.status === "active") ??
+		userState.activeSubscriptions[0] ??
+		null;
+	const config = subscription
+		? getPlanConfig(subscription.productId)
+		: undefined;
+	const mailMeter = userState.activeMeters.find(
+		(meter) => meter.meterId === env.POLAR_MAIL_METER_ID,
+	);
+	const domainCount = await countDomains(userId);
+
+	return {
+		customer: {
+			id: userState.id,
+			email: userState.email ?? null,
+			name: userState.name ?? null,
+		},
+		plan: {
+			name: config?.name ?? "Unknown plan",
+			slug: config?.slug ?? "unknown",
+			productId: subscription?.productId ?? null,
+			status: subscription?.status ?? "none",
+			currentPeriodEnd: subscription?.currentPeriodEnd?.toISOString() ?? null,
+			cancelAtPeriodEnd: subscription?.cancelAtPeriodEnd ?? false,
+			overage: config?.overage ?? false,
+		},
+		limits: {
+			domains: {
+				current: domainCount,
+				max: config?.limits.domains ?? null,
+			},
+			mailCredits: mailMeter
+				? {
+						consumed: mailMeter.consumedUnits,
+						credited: mailMeter.creditedUnits,
+						balance: mailMeter.balance,
+					}
+				: null,
+		},
 	};
 };
